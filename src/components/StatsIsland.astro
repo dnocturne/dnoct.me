@@ -1,0 +1,221 @@
+---
+/**
+ * Server Island: fetches live stats and renders the dynamic content for a project.
+ *
+ * Branches:
+ *   - hosted: tagline + description + features + inline status line + tech pills + invite CTA + link
+ *   - oss:    description/tagline + compact metadata line + latest-commit subject + view-source link
+ */
+import type { Project } from "../config/projects";
+import { fetchStats } from "../lib/data";
+import StatusDot from "./StatusDot.astro";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const stats = await fetchStats(project);
+
+function formatNumber(n: number | null): string {
+  if (n === null) return "-";
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 10_000) return `${(n / 1000).toFixed(1)}k`;
+  return n.toLocaleString("en-US");
+}
+
+function formatUptime(ms: number | null): string {
+  if (ms === null || ms < 0) return "-";
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return `${s}s`;
+}
+
+function formatRelativeTime(iso: string | null): string {
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const diff = Math.max(0, Date.now() - then);
+  const s = Math.floor(diff / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor(s / 60);
+  if (d > 0) return `${d}d ago`;
+  if (h > 0) return `${h}h ago`;
+  if (m > 0) return `${m}m ago`;
+  return "just now";
+}
+
+const tagline =
+  project.type === "hosted"
+    ? project.tagline
+    : (project.tagline ?? (stats.kind === "oss" ? stats.description : null) ?? "");
+---
+
+{stats.kind === "hosted" && project.type === "hosted" && (
+  <div class="flex flex-col gap-5">
+    {tagline && <p class="text-xl text-[var(--color-text)]">{tagline}</p>}
+
+    {project.description && (
+      <p class="max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
+        {project.description}
+      </p>
+    )}
+
+    {project.note && (
+      <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-4 text-sm leading-relaxed text-[var(--color-muted)]">
+        {project.note}
+      </p>
+    )}
+
+    {project.features.length > 0 && (
+      <div class="flex flex-wrap gap-1.5">
+        {project.features.map((f: string) => (
+          <span class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs text-[var(--color-muted)]">
+            {f}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+      <span class="flex items-center gap-2">
+        <StatusDot online={stats.online} />
+        <span class="font-medium text-[var(--color-text)]">
+          {stats.online ? "online" : "offline"}
+        </span>
+      </span>
+      {stats.servers !== null && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="tabular text-[var(--color-muted)]">{formatNumber(stats.servers)} servers</span>
+        </>
+      )}
+      {stats.users !== null && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="tabular text-[var(--color-muted)]">{formatNumber(stats.users)} users</span>
+        </>
+      )}
+      {stats.uptimeMs !== null && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="tabular text-[var(--color-muted)]">up {formatUptime(stats.uptimeMs)}</span>
+        </>
+      )}
+    </div>
+
+    {project.tech.length > 0 && (
+      <div class="flex flex-wrap gap-1.5">
+        {project.tech.map((t: string) => (
+          <span class="rounded-md bg-[var(--color-surface)] px-2 py-1 font-mono text-[11px] text-[var(--color-muted)]">
+            {t}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <div class="mt-2 flex flex-wrap items-center gap-4">
+      <a
+        href={project.inviteUrl}
+        class="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90"
+      >
+        <span>+ invite to discord</span>
+      </a>
+      <a
+        href={project.url}
+        class="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+      >
+        <span>{project.url.replace(/^https?:\/\//, "")}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+)}
+
+{stats.kind === "oss" && project.type === "oss" && (
+  <div class="flex flex-col gap-2">
+    {tagline && (
+      <p class="max-w-2xl text-sm leading-relaxed text-[var(--color-muted)]">{tagline}</p>
+    )}
+
+    {project.note && (
+      <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-3 text-xs leading-relaxed text-[var(--color-muted)]">
+        {project.note}
+      </p>
+    )}
+
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--color-muted)]">
+      {stats.stars !== null && (
+        <span class="tabular">★ {formatNumber(stats.stars)}</span>
+      )}
+      {project.role === "plugin" && stats.downloads !== null && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="tabular">↓ {formatNumber(stats.downloads)}</span>
+        </>
+      )}
+      {stats.language && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span>{stats.language}</span>
+        </>
+      )}
+      {stats.latestCommit && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <a
+            href={stats.latestCommit.url}
+            class="tabular transition-colors hover:text-[var(--color-text)]"
+          >
+            {stats.latestCommit.sha}
+          </a>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span>{formatRelativeTime(stats.latestCommit.date)}</span>
+        </>
+      )}
+      {stats.version && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="rounded-md bg-[color-mix(in_oklab,var(--color-accent)_20%,transparent)] px-1.5 py-0.5 text-[var(--color-accent)]">
+            {stats.version}
+          </span>
+        </>
+      )}
+    </div>
+
+    {stats.latestCommit?.message && (
+      <p
+        class="truncate font-mono text-xs text-[var(--color-dim)]"
+        title={stats.latestCommit.message}
+      >
+        → {stats.latestCommit.message}
+      </p>
+    )}
+
+    <div class="mt-1 flex flex-wrap items-center gap-4 text-sm">
+      {project.role === "plugin" && stats.downloadUrl && stats.version ? (
+        <a
+          href={stats.downloadUrl}
+          class="inline-flex items-center gap-1 font-medium text-[var(--color-accent)] transition-opacity hover:opacity-80"
+        >
+          <span>↓ download {stats.version}</span>
+        </a>
+      ) : null}
+      {stats.sourceUrl && (
+        <a
+          href={stats.sourceUrl}
+          class="inline-flex items-center gap-1 text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+        >
+          <span>view source</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      )}
+    </div>
+  </div>
+)}

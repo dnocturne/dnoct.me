@@ -1,0 +1,35 @@
+---
+/**
+ * Fallback shown instantly while a StatsIsland streams in from the server.
+ */
+interface Props {
+  variant: "hosted" | "oss";
+}
+
+const { variant } = Astro.props;
+---
+
+<div class="animate-pulse" aria-hidden="true">
+  {variant === "hosted" ? (
+    <div class="flex flex-col gap-5">
+      <div class="h-6 w-2/3 rounded bg-[var(--color-border)]"></div>
+      <div class="space-y-2">
+        <div class="h-3 w-full max-w-xl rounded bg-[var(--color-border)]"></div>
+        <div class="h-3 w-5/6 max-w-lg rounded bg-[var(--color-border)]"></div>
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        <div class="h-5 w-20 rounded-full bg-[var(--color-border)]"></div>
+        <div class="h-5 w-16 rounded-full bg-[var(--color-border)]"></div>
+        <div class="h-5 w-20 rounded-full bg-[var(--color-border)]"></div>
+      </div>
+      <div class="h-4 w-80 rounded bg-[var(--color-border)]"></div>
+      <div class="h-10 w-48 rounded-lg bg-[var(--color-border)]"></div>
+    </div>
+  ) : (
+    <div class="flex flex-col gap-2">
+      <div class="h-3 w-3/4 max-w-lg rounded bg-[var(--color-border)]"></div>
+      <div class="h-3 w-2/3 max-w-md rounded bg-[var(--color-border)]"></div>
+      <div class="h-3 w-40 rounded bg-[var(--color-border)]"></div>
+    </div>
+  )}
+</div>

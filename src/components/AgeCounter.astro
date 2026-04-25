@@ -1,0 +1,73 @@
+---
+/**
+ * Server Island - renders the "N years old" ↔ "N days until I turn M" swap.
+ * Recomputes on every request so the values are always current without
+ * requiring a site rebuild.
+ *
+ * All date math is anchored to the caller-provided IANA timezone (so
+ * "today" matches the author's wall clock, not the server's).
+ */
+interface Props {
+  /** Birth year (e.g., 2003) */
+  year: number;
+  /** Birth month, 1-indexed (1 = January, 4 = April) */
+  month: number;
+  /** Birth day of month (1–31) */
+  day: number;
+  /** IANA timezone name used to resolve "today" (e.g., "Europe/Vilnius") */
+  timezone: string;
+}
+
+const { year: birthYear, month: birthMonth, day: birthDay, timezone } = Astro.props;
+
+// Resolve "today" in the target timezone by formatting the current instant
+// as a YYYY-MM-DD string in that timezone and parsing it back.
+const parts = new Intl.DateTimeFormat("en-CA", {
+  timeZone: timezone,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+})
+  .format(new Date())
+  .split("-")
+  .map(Number);
+
+const [todayYear, todayMonth, todayDay] = parts;
+
+// Day-level arithmetic via Date.UTC (no DST/TZ weirdness because we're
+// comparing abstract calendar days, not instants).
+const todayMs = Date.UTC(todayYear, todayMonth - 1, todayDay);
+const thisYearBirthdayMs = Date.UTC(todayYear, birthMonth - 1, birthDay);
+
+let age = todayYear - birthYear;
+if (todayMs < thisYearBirthdayMs) age--;
+
+const nextBirthdayMs =
+  todayMs < thisYearBirthdayMs
+    ? thisYearBirthdayMs
+    : Date.UTC(todayYear + 1, birthMonth - 1, birthDay);
+
+const daysUntilBirthday = Math.round(
+  (nextBirthdayMs - todayMs) / (1000 * 60 * 60 * 24),
+);
+const nextAge = age + 1;
+---
+
+<div
+  class="age group relative inline-grid cursor-help text-sm"
+  title={`${daysUntilBirthday} days until I turn ${nextAge}`}
+>
+  <span
+    class="age__default col-start-1 row-start-1 transition-[transform,opacity] duration-300 ease-out group-hover:-translate-y-1 group-hover:opacity-0 group-focus-visible:-translate-y-1 group-focus-visible:opacity-0"
+  >
+    <span class="tabular font-medium text-[var(--color-text)]">{age}</span>
+    <span class="text-[var(--color-muted)]"> years old</span>
+  </span>
+  <span
+    class="age__hover col-start-1 row-start-1 translate-y-1 whitespace-nowrap opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+  >
+    <span class="tabular font-medium text-[var(--color-text)]">{daysUntilBirthday}</span>
+    <span class="text-[var(--color-muted)]"> days until I turn </span>
+    <span class="tabular font-medium text-[var(--color-text)]">{nextAge}</span>
+  </span>
+</div>

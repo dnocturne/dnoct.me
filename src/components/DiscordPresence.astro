@@ -1,0 +1,134 @@
+---
+/**
+ * Server Island - shows the user's Discord username (primary anchor so
+ * visitors can add them) plus their current status from Lanyard. When a
+ * game is being played, a second line appears showing what.
+ *
+ * Data sources, in order of preference for the "currently playing" line:
+ *   1. Steam Web API (reliable for Steam games, links to the store page)
+ *   2. Discord rich presence via Lanyard (catches non-Steam games like
+ *      Minecraft that Discord detects on its own)
+ *
+ * Re-renders per request so values are always current.
+ * If Lanyard is unreachable, the username and link still render -
+ * we just omit the dot, status, and activity lines.
+ *
+ * Requires:
+ *   - target user in the Lanyard Discord server (https://discord.gg/lanyard)
+ *   - `STEAM_API_KEY` env var if `steamId` is passed
+ *   - target user's Steam "Game details" privacy set to Public
+ */
+import { fetchSteamPresence } from "../lib/data/steam";
+
+interface Props {
+  /** Discord snowflake ID for the Lanyard fetch and profile deep-link */
+  userId: string;
+  /** Discord username, shown as the primary label */
+  username: string;
+  /** SteamID64 — if provided, queries Steam for the current game */
+  steamId?: string;
+}
+
+const { userId, username, steamId } = Astro.props;
+
+type Status = "online" | "idle" | "dnd" | "offline";
+
+// Discord activity types: 0 = Playing, 1 = Streaming, 2 = Listening,
+// 3 = Watching, 4 = Custom, 5 = Competing. We care about 0 / 5 - actual games.
+interface LanyardActivity {
+  type: number;
+  name: string;
+  state?: string;
+  details?: string;
+}
+
+interface LanyardData {
+  discord_status: Status;
+  activities: LanyardActivity[];
+}
+
+interface LanyardResponse {
+  success: boolean;
+  data?: LanyardData;
+}
+
+async function fetchLanyard(id: string): Promise<LanyardData | null> {
+  try {
+    const res = await fetch(`https://api.lanyard.rest/v1/users/${id}`, {
+      signal: AbortSignal.timeout(5000),
+      headers: { "User-Agent": "dnoct-me-portfolio" },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as LanyardResponse;
+    return json.data ?? null;
+  } catch (err) {
+    console.warn("[discord-presence] lanyard fetch failed:", err);
+    return null;
+  }
+}
+
+// Fetch Lanyard and Steam in parallel; either may fail independently.
+const [lanyard, steam] = await Promise.all([
+  fetchLanyard(userId),
+  steamId ? fetchSteamPresence(steamId).catch(() => null) : Promise.resolve(null),
+]);
+
+const status = lanyard?.discord_status ?? null;
+const discordActivity =
+  lanyard?.activities.find((a) => a.type === 0 || a.type === 5) ?? null;
+
+// Pick a game source: Steam wins if it has data, Discord activity is the fallback.
+const game: { name: string; url: string | null } | null = steam?.game
+  ? {
+      name: steam.game.name,
+      url: steam.game.appId
+        ? `https://store.steampowered.com/app/${steam.game.appId}/`
+        : null,
+    }
+  : discordActivity
+    ? { name: discordActivity.name, url: null }
+    : null;
+
+const labels: Record<Status, string> = {
+  online: "online",
+  idle: "idle",
+  dnd: "dnd",
+  offline: "offline",
+};
+---
+
+<div class="flex flex-col gap-0.5">
+  <a
+    href={`https://discord.com/users/${userId}`}
+    class="flex flex-wrap items-center gap-x-2 gap-y-0 text-sm transition-colors hover:text-[var(--color-text)]"
+    title={status ? `@${username} on Discord · ${labels[status]}` : `@${username} on Discord`}
+  >
+    {status && (
+      <span class="presence-dot" data-status={status} aria-hidden="true"></span>
+    )}
+    <span class="font-medium text-[var(--color-text)]">{username}</span>
+    <span class="text-xs text-[var(--color-dim)]">on discord</span>
+    {status && (
+      <>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="text-[var(--color-muted)]">{labels[status]}</span>
+      </>
+    )}
+  </a>
+
+  {game && (
+    <p class="text-xs text-[var(--color-muted)]">
+      playing{" "}
+      {game.url ? (
+        <a
+          href={game.url}
+          class="text-[var(--color-text)] transition-colors hover:text-[var(--color-accent)]"
+        >
+          {game.name}
+        </a>
+      ) : (
+        <span class="text-[var(--color-text)]">{game.name}</span>
+      )}
+    </p>
+  )}
+</div>

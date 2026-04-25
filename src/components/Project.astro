@@ -1,0 +1,63 @@
+---
+/**
+ * Renders a single project as a block in the vertical listing.
+ * No card chrome - just typography, a type badge, and a deferred StatsIsland
+ * for the live data.
+ *
+ * Hosted projects get a larger, more prominent treatment because they have
+ * richer content (description, features, tech, live metrics, CTA button).
+ * OSS projects are compact rows - name + description + one stats line + link.
+ */
+import type { Project } from "../config/projects";
+import StatsIsland from "./StatsIsland.astro";
+import StatsSkeleton from "./StatsSkeleton.astro";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+
+const role: "hosted" | "library" | "plugin" =
+  project.type === "hosted" ? "hosted" : project.role;
+
+const badge = role === "hosted" ? "HOSTED SERVICE" : role === "library" ? "LIBRARY" : "PLUGIN";
+const badgeIcon = role === "hosted" ? "●" : role === "library" ? "◆" : "◇";
+const badgeColor =
+  role === "hosted" ? "text-[var(--color-accent)]" : "text-[var(--color-muted)]";
+
+const isHosted = project.type === "hosted";
+---
+
+{isHosted ? (
+  <article class="flex flex-col gap-5">
+    <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
+      <span aria-hidden="true">{badgeIcon}</span>
+      <span>{badge}</span>
+    </div>
+
+    <h3 class="text-5xl font-semibold leading-none tracking-tight text-[var(--color-text)] md:text-6xl">
+      {project.name}
+    </h3>
+
+    <StatsIsland project={project} server:defer>
+      <StatsSkeleton variant={project.type} slot="fallback" />
+    </StatsIsland>
+  </article>
+) : (
+  <article class="flex flex-col gap-3 border-t border-[var(--color-border)] pt-6">
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <h3 class="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
+        <span aria-hidden="true" class={`mr-2 ${badgeColor}`}>{badgeIcon}</span>
+        {project.name}
+      </h3>
+      <span class={`text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
+        {badge}
+      </span>
+    </div>
+
+    <StatsIsland project={project} server:defer>
+      <StatsSkeleton variant={project.type} slot="fallback" />
+    </StatsIsland>
+  </article>
+)}

@@ -1,0 +1,158 @@
+---
+import "../styles/global.css";
+import Project from "../components/Project.astro";
+import AgeCounter from "../components/AgeCounter.astro";
+import DiscordPresence from "../components/DiscordPresence.astro";
+import RandomQuote from "../components/RandomQuote.astro";
+import { projects, type Project as ProjectType } from "../config/projects";
+
+export const prerender = true;
+
+const hosted: ProjectType[] = projects.filter((p) => p.type === "hosted");
+const oss: ProjectType[] = projects.filter((p) => p.type === "oss");
+
+const year = new Date().getFullYear();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content="dnoct.me - projects, open-source work, and hosted services." />
+    <title>dnoct.me</title>
+  </head>
+  <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] antialiased">
+    <div class="min-h-screen md:grid md:grid-cols-[20rem_1fr]">
+      <aside
+        class="flex flex-col gap-8 border-b border-[var(--color-border)] px-6 py-12 md:sticky md:top-0 md:h-screen md:border-b-0 md:border-r md:px-10 md:py-16"
+      >
+        <header class="flex flex-col gap-2">
+          <h1 class="text-2xl font-medium tracking-tight">dnoct.me</h1>
+          <div class="min-h-[3.75rem]">
+            <RandomQuote server:defer>
+              <p slot="fallback" class="text-sm text-[var(--color-muted)]">
+                Yet another generic life story is in another castle.
+              </p>
+            </RandomQuote>
+          </div>
+        </header>
+
+        <p class="text-sm leading-relaxed text-[var(--color-muted)]">
+          Third-year <span class="text-[var(--color-text)]">Informatika</span>
+          (Computer Science) student at
+          <span lang="lt" class="text-[var(--color-text)]">Klaipėdos valstybinė kolegija</span>.
+        </p>
+
+        <div class="flex flex-col gap-2">
+          <AgeCounter
+            year={2003}
+            month={4}
+            day={28}
+            timezone="Europe/Vilnius"
+            server:defer
+          >
+            <span
+              slot="fallback"
+              class="inline-block h-5 w-28 animate-pulse rounded bg-[var(--color-border)]"
+              aria-hidden="true"
+            ></span>
+          </AgeCounter>
+
+          <DiscordPresence
+            userId="263304948291207170"
+            username="dnocturne"
+            steamId="76561197961705602"
+            server:defer
+          >
+            <span
+              slot="fallback"
+              class="inline-block h-5 w-44 animate-pulse rounded bg-[var(--color-border)]"
+              aria-hidden="true"
+            ></span>
+          </DiscordPresence>
+        </div>
+
+        <nav class="flex flex-col gap-1 text-sm">
+          <a
+            href="#running"
+            class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+          >
+            Running
+          </a>
+          <a
+            href="#open-source"
+            class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+          >
+            Open source
+          </a>
+        </nav>
+
+        <footer class="mt-auto flex flex-col gap-2 text-xs text-[var(--color-muted)]">
+          <div class="flex flex-wrap gap-x-3 gap-y-1">
+            <a
+              href="https://github.com/dnocturne"
+              class="transition-colors hover:text-[var(--color-text)]"
+            >
+              github
+            </a>
+            <span aria-hidden="true" class="text-[var(--color-dim)]">·</span>
+            <a
+              href="https://www.linkedin.com/in/dominykas-jankantas-315226361/"
+              class="transition-colors hover:text-[var(--color-text)]"
+            >
+              linkedin
+            </a>
+            <span aria-hidden="true" class="text-[var(--color-dim)]">·</span>
+            <a
+              href="mailto:dominykas@dnoct.me"
+              class="transition-colors hover:text-[var(--color-text)]"
+            >
+              email
+            </a>
+          </div>
+          <span class="text-[var(--color-dim)]">&copy; {year}</span>
+        </footer>
+      </aside>
+
+      <main class="flex flex-col gap-16 px-6 py-12 md:px-16 md:py-16 lg:px-20">
+        {hosted.length > 0 && (
+          <section id="running" class="flex flex-col gap-8 scroll-mt-12">
+            <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
+              Running
+            </h2>
+            {hosted.map((p) => <Project project={p} />)}
+          </section>
+        )}
+
+        {oss.length > 0 && (
+          <section id="open-source" class="flex flex-col gap-6 scroll-mt-12">
+            <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
+              Open source
+            </h2>
+            <div class="grid items-start gap-x-12 gap-y-6 sm:grid-cols-2">
+              {oss.map((p) => <Project project={p} />)}
+            </div>
+          </section>
+        )}
+
+        <footer
+          class="mt-auto flex flex-col gap-2 border-t border-[var(--color-border)] pt-8 text-xs text-[var(--color-muted)]"
+        >
+          <p>
+            Built with <a href="https://astro.build" class="transition-colors hover:text-[var(--color-text)]">Astro</a> and <a href="https://tailwindcss.com" class="transition-colors hover:text-[var(--color-text)]">Tailwind CSS</a>, hosted on <a href="https://vercel.com" class="transition-colors hover:text-[var(--color-text)]">Vercel</a>. Type set in <span class="text-[var(--color-text)]">Inter</span> and <span class="font-mono text-[var(--color-text)]">JetBrains Mono</span>.
+          </p>
+          <a
+            href="https://github.com/dnocturne/dnoct.me"
+            class="inline-flex items-center gap-1 self-start transition-colors hover:text-[var(--color-text)]"
+          >
+            <span>view source of this site</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

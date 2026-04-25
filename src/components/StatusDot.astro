@@ -1,0 +1,14 @@
+---
+/**
+ * Animated online/offline status dot.
+ * When `online` is true the dot pulses in the accent color;
+ * otherwise it renders as a dim static circle.
+ */
+interface Props {
+  online: boolean;
+}
+
+const { online } = Astro.props;
+---
+
+<span class="status-dot" data-online={online ? "true" : "false"} aria-hidden="true"></span>
