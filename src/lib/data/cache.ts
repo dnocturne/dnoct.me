@@ -1,15 +1,18 @@
 /**
  * Tiny on-disk cache used as a stale-fallback when live fetches fail.
  *
- * Files are written to `.cache/{key}.json` at the repo root.
- * Gitignored - purely a dev/build convenience. In production on Vercel
- * the filesystem is ephemeral, so this mostly matters for local iteration.
+ * Local dev: writes to `.cache/{key}.json` at the repo root (gitignored).
+ * Vercel:    writes to `/tmp/.cache/{key}.json`. Vercel's `/var/task` filesystem
+ *            is read-only, but `/tmp` is writable and persists across warm
+ *            invocations of the same function instance (cleared on cold start).
  */
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-const CACHE_DIR = path.resolve(process.cwd(), ".cache");
+const CACHE_DIR = process.env.VERCEL
+  ? path.join("/tmp", ".cache")
+  : path.resolve(process.cwd(), ".cache");
 
 const keyToPath = (key: string) => path.join(CACHE_DIR, `${key}.json`);
 

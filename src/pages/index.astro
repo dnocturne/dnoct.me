@@ -4,6 +4,8 @@ import Project from "../components/Project.astro";
 import AgeCounter from "../components/AgeCounter.astro";
 import DiscordPresence from "../components/DiscordPresence.astro";
 import RandomQuote from "../components/RandomQuote.astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
+import Analytics from "@vercel/analytics/astro";
 import { projects, type Project as ProjectType } from "../config/projects";
 
 export const prerender = true;
@@ -154,5 +156,8 @@ const year = new Date().getFullYear();
         </footer>
       </main>
     </div>
+
+    <SpeedInsights />
+    <Analytics />
   </body>
 </html>
