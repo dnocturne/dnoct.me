@@ -35,9 +35,14 @@ const year = new Date().getFullYear();
           <h1 class="text-2xl font-medium tracking-tight">dnoct.me</h1>
           <div class="min-h-[3.75rem]">
             <RandomQuote server:defer>
-              <p slot="fallback" class="text-sm text-[var(--color-muted)]">
-                Yet another generic life story is in another castle.
-              </p>
+              <div
+                slot="fallback"
+                class="flex flex-col gap-1.5"
+                aria-hidden="true"
+              >
+                <div class="h-3 w-full animate-pulse rounded bg-[var(--color-border)]"></div>
+                <div class="h-3 w-2/3 animate-pulse rounded bg-[var(--color-border)]"></div>
+              </div>
             </RandomQuote>
           </div>
         </header>
