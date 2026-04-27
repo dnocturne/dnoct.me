@@ -20,6 +20,12 @@ export type Project =
       tagline?: string;
       /** Short author's note: why it exists / what it's for */
       note?: string;
+      /**
+       * Modrinth project URL. When set, renders a small "modrinth" tag in the
+       * stats line. Use the full canonical URL (e.g.
+       * "https://modrinth.com/plugin/afflictions").
+       */
+      modrinthUrl?: string;
     }
   | {
       type: "hosted";
@@ -72,6 +78,7 @@ export const projects: Project[] = [
     name: "afflictions",
     owner: "dnocturne",
     repo: "afflictions",
+    modrinthUrl: "https://modrinth.com/plugin/afflictions",
     note: "Built for my work-in-progress Minecraft server. Also decided to open source it since it's a neat little plugin and might be useful to other server owners.",
   },
 ];

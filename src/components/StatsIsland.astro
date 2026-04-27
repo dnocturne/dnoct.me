@@ -187,6 +187,18 @@ const tagline =
           </span>
         </>
       )}
+      {project.modrinthUrl && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <a
+            href={project.modrinthUrl}
+            class="inline-flex items-center gap-1 rounded-md border border-[var(--color-border)] px-1.5 py-0.5 transition-colors hover:border-[var(--color-text)] hover:text-[var(--color-text)]"
+          >
+            <span>modrinth</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </>
+      )}
     </div>
 
     {stats.latestCommit?.message && (

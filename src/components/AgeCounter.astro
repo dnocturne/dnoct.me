@@ -1,6 +1,9 @@
 ---
 /**
  * Server Island - renders the "N years old" ↔ "N days until I turn M" swap.
+ * On the author's birthday it instead renders a single celebratory line
+ * ("Today is my birthday, I turned N.") with no hover state.
+ *
  * Recomputes on every request so the values are always current without
  * requiring a site rebuild.
  *
@@ -42,6 +45,8 @@ const thisYearBirthdayMs = Date.UTC(todayYear, birthMonth - 1, birthDay);
 let age = todayYear - birthYear;
 if (todayMs < thisYearBirthdayMs) age--;
 
+const isBirthday = todayMonth === birthMonth && todayDay === birthDay;
+
 const nextBirthdayMs =
   todayMs < thisYearBirthdayMs
     ? thisYearBirthdayMs
@@ -53,21 +58,29 @@ const daysUntilBirthday = Math.round(
 const nextAge = age + 1;
 ---
 
-<div
-  class="age group relative inline-grid cursor-help text-sm"
-  title={`${daysUntilBirthday} days until I turn ${nextAge}`}
->
-  <span
-    class="age__default col-start-1 row-start-1 transition-[transform,opacity] duration-300 ease-out group-hover:-translate-y-1 group-hover:opacity-0 group-focus-visible:-translate-y-1 group-focus-visible:opacity-0"
-  >
+{isBirthday ? (
+  <div class="age inline-block text-sm">
+    <span class="text-[var(--color-muted)]">Today is my birthday, I turned </span>
     <span class="tabular font-medium text-[var(--color-text)]">{age}</span>
-    <span class="text-[var(--color-muted)]"> years old</span>
-  </span>
-  <span
-    class="age__hover col-start-1 row-start-1 translate-y-1 whitespace-nowrap opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+    <span class="text-[var(--color-muted)]">.</span>
+  </div>
+) : (
+  <div
+    class="age group relative inline-grid cursor-help text-sm"
+    title={`${daysUntilBirthday} days until I turn ${nextAge}`}
   >
-    <span class="tabular font-medium text-[var(--color-text)]">{daysUntilBirthday}</span>
-    <span class="text-[var(--color-muted)]"> days until I turn </span>
-    <span class="tabular font-medium text-[var(--color-text)]">{nextAge}</span>
-  </span>
-</div>
+    <span
+      class="age__default col-start-1 row-start-1 transition-[transform,opacity] duration-300 ease-out group-hover:-translate-y-1 group-hover:opacity-0 group-focus-visible:-translate-y-1 group-focus-visible:opacity-0"
+    >
+      <span class="tabular font-medium text-[var(--color-text)]">{age}</span>
+      <span class="text-[var(--color-muted)]"> years old</span>
+    </span>
+    <span
+      class="age__hover col-start-1 row-start-1 translate-y-1 whitespace-nowrap opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+    >
+      <span class="tabular font-medium text-[var(--color-text)]">{daysUntilBirthday}</span>
+      <span class="text-[var(--color-muted)]"> days until I turn </span>
+      <span class="tabular font-medium text-[var(--color-text)]">{nextAge}</span>
+    </span>
+  </div>
+)}
