@@ -1,0 +1,5 @@
+# Allow all well-behaved crawlers.
+User-agent: *
+Allow: /
+
+Sitemap: https://dnoct.me/sitemap-index.xml

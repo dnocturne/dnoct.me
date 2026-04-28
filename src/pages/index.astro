@@ -37,17 +37,99 @@ const buildCommitShort = buildCommit?.slice(0, 7) ?? null;
 const buildCommitUrl = buildCommit
   ? `https://github.com/dnocturne/dnoct.me/commit/${buildCommit}`
   : null;
+
+// --- SEO & social metadata ----------------------------------------------------
+// Centralized so <title>, <meta name="description">, OpenGraph, Twitter Card,
+// and JSON-LD all stay in sync. Keep `seoDescription` ≤ ~160 chars so SERPs
+// don't truncate it.
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://dnoct.me";
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://dnoct.me/").toString();
+const seoTitle = "dnoct.me — Dominykas Jankantas";
+const seoDescription =
+  "Dominykas Jankantas (dnocturne) — a CS student in Lithuania. Projects: nyx (Discord bot), basalt (Minecraft library), afflictions (Minecraft plugin).";
+
+// Person + WebSite structured data via @graph so Google can link the two.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+      name: "Dominykas Jankantas",
+      alternateName: "dnocturne",
+      url: `${siteUrl}/`,
+      jobTitle: "Software developer",
+      affiliation: {
+        "@type": "CollegeOrUniversity",
+        name: "Klaipėdos valstybinė kolegija",
+      },
+      homeLocation: {
+        "@type": "Place",
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "LT",
+          addressLocality: "Klaipėda",
+        },
+      },
+      sameAs: [
+        "https://github.com/dnocturne",
+        "https://www.linkedin.com/in/dominykas-jankantas-315226361/",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: `${siteUrl}/`,
+      name: "dnoct.me",
+      description: seoDescription,
+      inLanguage: "en",
+      author: { "@id": `${siteUrl}/#person` },
+      publisher: { "@id": `${siteUrl}/#person` },
+    },
+  ],
+};
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary -->
+    <title>{seoTitle}</title>
+    <meta name="description" content={seoDescription} />
+    <meta name="author" content="Dominykas Jankantas" />
+    <meta name="theme-color" content="#1a1a1a" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="dnoct.me - projects, open-source work, and hosted services." />
-    <title>dnoct.me</title>
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="dnoct.me" />
+    <meta property="og:title" content={seoTitle} />
+    <meta property="og:description" content={seoDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="profile:first_name" content="Dominykas" />
+    <meta property="profile:last_name" content="Jankantas" />
+    <meta property="profile:username" content="dnocturne" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={seoTitle} />
+    <meta name="twitter:description" content={seoDescription} />
+
+    <!-- Discovery -->
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="me" href="https://github.com/dnocturne" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   </head>
   <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] antialiased">
     <div class="min-h-screen md:grid md:grid-cols-[20rem_1fr]">
