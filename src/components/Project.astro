@@ -1,16 +1,17 @@
 ---
 /**
  * Renders a single project as a block in the vertical listing.
- * No card chrome - just typography, a type badge, and a deferred StatsIsland
- * for the live data.
+ * No card chrome - just typography, a type badge, and either a deferred
+ * StatsIsland for live data (hosted/oss) or an inline WipContent (wip).
  *
- * Hosted projects get a larger, more prominent treatment because they have
- * richer content (description, features, tech, live metrics, CTA button).
+ * Hosted and wip projects get a larger, more prominent treatment because
+ * they have richer content (description, features, tech, CTA button).
  * OSS projects are compact rows - name + description + one stats line + link.
  */
 import type { Project } from "../config/projects";
 import StatsIsland from "./StatsIsland.astro";
 import StatsSkeleton from "./StatsSkeleton.astro";
+import WipContent from "./WipContent.astro";
 
 interface Props {
   project: Project;
@@ -18,18 +19,37 @@ interface Props {
 
 const { project } = Astro.props;
 
-const role: "hosted" | "library" | "plugin" =
-  project.type === "hosted" ? "hosted" : project.role;
+type Role = "hosted" | "wip" | "library" | "plugin" | "mod";
+const role: Role =
+  project.type === "hosted" ? "hosted"
+  : project.type === "wip" ? "wip"
+  : project.role;
 
-const badge = role === "hosted" ? "HOSTED SERVICE" : role === "library" ? "LIBRARY" : "PLUGIN";
-const badgeIcon = role === "hosted" ? "●" : role === "library" ? "◆" : "◇";
+const badge =
+  role === "hosted" ? "HOSTED SERVICE"
+  : role === "wip" ? "IN DEVELOPMENT"
+  : role === "library" ? "LIBRARY"
+  : role === "plugin" ? "PLUGIN"
+  : "MOD";
+
+const badgeIcon =
+  role === "hosted" ? "●"
+  : role === "wip" ? "◐"
+  : role === "library" ? "◆"
+  : role === "plugin" ? "◇"
+  : "⬢";
+
+// Hosted is brightest (live), wip uses the same accent green to signal
+// "actively being built", oss falls back to muted.
 const badgeColor =
-  role === "hosted" ? "text-[var(--color-accent)]" : "text-[var(--color-muted)]";
+  role === "hosted" || role === "wip"
+    ? "text-[var(--color-accent)]"
+    : "text-[var(--color-muted)]";
 
-const isHosted = project.type === "hosted";
+const isLargeTile = project.type === "hosted" || project.type === "wip";
 ---
 
-{isHosted ? (
+{isLargeTile ? (
   <article class="flex flex-col gap-5">
     <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
       <span aria-hidden="true">{badgeIcon}</span>
@@ -40,9 +60,13 @@ const isHosted = project.type === "hosted";
       {project.name}
     </h3>
 
-    <StatsIsland project={project} server:defer>
-      <StatsSkeleton variant={project.type} slot="fallback" />
-    </StatsIsland>
+    {project.type === "hosted" ? (
+      <StatsIsland project={project} server:defer>
+        <StatsSkeleton variant="hosted" slot="fallback" />
+      </StatsIsland>
+    ) : project.type === "wip" ? (
+      <WipContent project={project} />
+    ) : null}
   </article>
 ) : (
   <article class="flex flex-col gap-3 border-t border-[var(--color-border)] pt-6">
@@ -57,7 +81,7 @@ const isHosted = project.type === "hosted";
     </div>
 
     <StatsIsland project={project} server:defer>
-      <StatsSkeleton variant={project.type} slot="fallback" />
+      <StatsSkeleton variant="oss" slot="fallback" />
     </StatsIsland>
   </article>
 )}

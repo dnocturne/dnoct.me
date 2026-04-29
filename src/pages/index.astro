@@ -12,6 +12,7 @@ import { projects, type Project as ProjectType } from "../config/projects";
 export const prerender = true;
 
 const hosted: ProjectType[] = projects.filter((p) => p.type === "hosted");
+const wip: ProjectType[] = projects.filter((p) => p.type === "wip");
 const oss: ProjectType[] = projects.filter((p) => p.type === "oss");
 
 const year = new Date().getFullYear();
@@ -44,9 +45,9 @@ const buildCommitUrl = buildCommit
 // don't truncate it.
 const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://dnoct.me";
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://dnoct.me/").toString();
-const seoTitle = "dnoct.me — Dominykas Jankantas";
+const seoTitle = "dnoct.me · Dominykas Jankantas";
 const seoDescription =
-  "Dominykas Jankantas (dnocturne) — a CS student in Lithuania. Projects: nyx (Discord bot), basalt (Minecraft library), afflictions (Minecraft plugin).";
+  "Dominykas Jankantas (dnocturne), a CS student in Lithuania. Building nyx (Discord bot), vgrp.lt (GTA V multiplayer), plus Minecraft plugins and Steam Workshop mods.";
 
 // Person + WebSite structured data via @graph so Google can link the two.
 const jsonLd = {
@@ -195,6 +196,12 @@ const jsonLd = {
             Running
           </a>
           <a
+            href="#working-on"
+            class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+          >
+            Working on
+          </a>
+          <a
             href="#open-source"
             class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
           >
@@ -236,6 +243,15 @@ const jsonLd = {
               Running
             </h2>
             {hosted.map((p) => <Project project={p} />)}
+          </section>
+        )}
+
+        {wip.length > 0 && (
+          <section id="working-on" class="flex flex-col gap-8 scroll-mt-12">
+            <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
+              Projects I'm working on
+            </h2>
+            {wip.map((p) => <Project project={p} />)}
           </section>
         )}
 

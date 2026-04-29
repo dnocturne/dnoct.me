@@ -6,12 +6,11 @@
  *   - hosted: tagline + description + features + inline status line + tech pills + invite CTA + link
  *   - oss:    description/tagline + compact metadata line + latest-commit subject + view-source link
  */
-import type { Project } from "../config/projects";
-import { fetchStats } from "../lib/data";
+import { fetchStats, type StatsfulProject } from "../lib/data";
 import StatusDot from "./StatusDot.astro";
 
 interface Props {
-  project: Project;
+  project: StatsfulProject;
 }
 
 const { project } = Astro.props;
@@ -217,6 +216,15 @@ const tagline =
           class="inline-flex items-center gap-1 font-medium text-[var(--color-accent)] transition-opacity hover:opacity-80"
         >
           <span>↓ download {stats.version}</span>
+        </a>
+      ) : null}
+      {project.role === "mod" && project.steamWorkshopUrl ? (
+        <a
+          href={project.steamWorkshopUrl}
+          class="inline-flex items-center gap-1 font-medium text-[var(--color-accent)] transition-opacity hover:opacity-80"
+        >
+          <span>↓ install on steam</span>
+          <span aria-hidden="true">↗</span>
         </a>
       ) : null}
       {stats.sourceUrl && (
