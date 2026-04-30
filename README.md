@@ -2,7 +2,7 @@
 
 My personal page - a simple showcase of my projects. Nothing more, nothing less.
 
-Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com), hosted on [Vercel](https://vercel.com). Type set in [Inter](https://rsms.me/inter/) and [JetBrains Mono](https://www.jetbrains.com/lp/mono/).
+Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com), hosted on [Vercel](https://vercel.com). Type set in [Inter](https://rsms.me/inter/) and [JetBrains Mono](https://www.jetbrains.com/lp/mono/). Platform logos from [svgl.app](https://svgl.app).
 
 ## Commands
 

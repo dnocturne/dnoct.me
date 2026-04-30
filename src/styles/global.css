@@ -15,6 +15,24 @@
   --color-dim: oklch(0.45 0 0);
   --color-accent: oklch(0.75 0.15 155);
   --color-accent-dim: oklch(0.30 0.05 155);
+
+  /* Platform CTA backgrounds. These are the BUTTON surface colors, chosen
+     to be each platform's own dark-theme surface so the brand-colored SVG
+     icon (kept at its true brand color, never recolored) reads against it
+     the way it does in that platform's actual UI.
+     The GitHub group is the exception: GitHub_light.svg has a dark fill
+     (it's their light-theme variant), so its button uses a light surface
+     to match — this is GitHub's own light-theme button styling.
+     Generic in-house CTAs (the user's own products) keep --color-accent. */
+  --color-discord: #2B2D31;       /* Discord's dark-mode chat surface */
+  --color-discord-text: #ffffff;
+  --color-modrinth: #16181c;      /* near-black, mirrors modrinth.com bg */
+  --color-modrinth-text: #ffffff;
+  --color-steam: #1b2838;         /* Steam storefront navy */
+  --color-steam-text: #c7d5e0;
+  --color-github: #f6f8fa;        /* GitHub light-theme canvas */
+  --color-github-text: #24292f;   /* GitHub light-theme fg */
+  --color-github-border: #d0d7de; /* GitHub light-theme border */
 }
 
 @layer base {

@@ -4,9 +4,16 @@
  *
  * Branches:
  *   - hosted: tagline + description + features + inline status line + tech pills + invite CTA + link
- *   - oss:    description/tagline + compact metadata line + latest-commit subject + view-source link
+ *   - oss:    description/tagline + compact metadata line + latest-commit subject + platform CTAs + view-source link
+ *
+ * Platform CTAs (Discord invite, Modrinth install, Steam install, GitHub
+ * release download) all share the same button geometry but each paints itself
+ * with its platform's brand color via --color-{discord,modrinth,steam,github}
+ * defined in styles/global.css. Keeps the action row visually consistent
+ * while making each button instantly recognizable as that platform.
  */
 import { fetchStats, type StatsfulProject } from "../lib/data";
+import { getLanguageColor } from "../lib/data/language-colors";
 import StatusDot from "./StatusDot.astro";
 
 interface Props {
@@ -15,6 +22,11 @@ interface Props {
 
 const { project } = Astro.props;
 const stats = await fetchStats(project);
+
+// Shared geometry for every platform CTA. Each call site appends the
+// platform-specific bg/text color classes.
+const platformButtonClass =
+  "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90";
 
 function formatNumber(n: number | null): string {
   if (n === null) return "-";
@@ -122,9 +134,15 @@ const tagline =
     <div class="mt-2 flex flex-wrap items-center gap-4">
       <a
         href={project.inviteUrl}
-        class="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90"
+        class={`${platformButtonClass} bg-[var(--color-discord)] text-[var(--color-discord-text)]`}
       >
-        <span>+ invite to discord</span>
+        <img
+          src="/discord.svg"
+          class="h-4 w-auto shrink-0"
+          alt=""
+          aria-hidden="true"
+        />
+        <span>invite to discord</span>
       </a>
       <a
         href={project.url}
@@ -162,7 +180,21 @@ const tagline =
       {stats.language && (
         <>
           <span class="text-[var(--color-dim)]">·</span>
-          <span>{stats.language}</span>
+          <span class="inline-flex items-center gap-1.5">
+            {getLanguageColor(stats.language) ? (
+              <span
+                class="inline-block size-2 rounded-full"
+                style={`background-color: ${getLanguageColor(stats.language)}`}
+                aria-hidden="true"
+              />
+            ) : (
+              <span
+                class="inline-block size-2 rounded-full bg-[var(--color-dim)]"
+                aria-hidden="true"
+              />
+            )}
+            <span>{stats.language}</span>
+          </span>
         </>
       )}
       {stats.latestCommit && (
@@ -184,18 +216,6 @@ const tagline =
           <span class="rounded-md bg-[color-mix(in_oklab,var(--color-accent)_20%,transparent)] px-1.5 py-0.5 text-[var(--color-accent)]">
             {stats.version}
           </span>
-        </>
-      )}
-      {project.modrinthUrl && (
-        <>
-          <span class="text-[var(--color-dim)]">·</span>
-          <a
-            href={project.modrinthUrl}
-            class="inline-flex items-center gap-1 rounded-md border border-[var(--color-border)] px-1.5 py-0.5 transition-colors hover:border-[var(--color-text)] hover:text-[var(--color-text)]"
-          >
-            <span>modrinth</span>
-            <span aria-hidden="true">↗</span>
-          </a>
         </>
       )}
     </div>
@@ -221,31 +241,61 @@ const tagline =
       </p>
     )}
 
-    <div class="mt-1 flex flex-wrap items-center gap-4 text-sm">
+    <div class="mt-2 flex flex-wrap items-center gap-3 text-sm">
+      {project.role === "plugin" && project.modrinthUrl && (
+        <a
+          href={project.modrinthUrl}
+          class={`${platformButtonClass} bg-[var(--color-modrinth)] text-[var(--color-modrinth-text)]`}
+        >
+          <img
+            src="/modrinth.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
+          <span>install on modrinth</span>
+        </a>
+      )}
       {project.role === "plugin" && stats.downloadUrl && stats.version ? (
         <a
           href={stats.downloadUrl}
-          class="inline-flex items-center gap-1 font-medium text-[var(--color-accent)] transition-opacity hover:opacity-80"
+          class={`${platformButtonClass} border border-[var(--color-github-border)] bg-[var(--color-github)] text-[var(--color-github-text)]`}
         >
-          <span>↓ download {stats.version}</span>
+          <img
+            src="/GitHub_light.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
+          <span>download {stats.version}</span>
         </a>
       ) : null}
       {project.role === "mod" && project.steamWorkshopUrl ? (
         <a
           href={project.steamWorkshopUrl}
-          class="inline-flex items-center gap-1 font-medium text-[var(--color-accent)] transition-opacity hover:opacity-80"
+          class={`${platformButtonClass} bg-[var(--color-steam)] text-[var(--color-steam-text)]`}
         >
-          <span>↓ install on steam</span>
-          <span aria-hidden="true">↗</span>
+          <img
+            src="/steam.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
+          <span>install on steam</span>
         </a>
       ) : null}
       {stats.sourceUrl && (
         <a
           href={stats.sourceUrl}
-          class="inline-flex items-center gap-1 text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+          class={`${platformButtonClass} border border-[var(--color-github-border)] bg-[var(--color-github)] text-[var(--color-github-text)]`}
         >
+          <img
+            src="/GitHub_light.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
           <span>view source</span>
-          <span aria-hidden="true">↗</span>
         </a>
       )}
     </div>
