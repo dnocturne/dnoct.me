@@ -22,7 +22,7 @@
      the way it does in that platform's actual UI.
      The GitHub group is the exception: GitHub_light.svg has a dark fill
      (it's their light-theme variant), so its button uses a light surface
-     to match — this is GitHub's own light-theme button styling.
+     to match. This is GitHub's own light-theme button styling.
      Generic in-house CTAs (the user's own products) keep --color-accent. */
   --color-discord: #2B2D31;       /* Discord's dark-mode chat surface */
   --color-discord-text: #ffffff;

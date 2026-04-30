@@ -1,0 +1,47 @@
+---
+/**
+ * Server Island: just the live status line for a hosted project.
+ * Everything around it (tagline, description, features, tech, buttons) is
+ * static config and renders synchronously in Project.astro.
+ */
+import type { Project } from "../config/projects";
+import { fetchStats } from "../lib/data";
+import { formatNumber, formatUptime } from "../lib/format";
+import StatusDot from "./StatusDot.astro";
+
+interface Props {
+  project: Extract<Project, { type: "hosted" }>;
+}
+
+const { project } = Astro.props;
+const stats = await fetchStats(project);
+---
+
+{stats.kind === "hosted" && (
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+    <span class="flex items-center gap-2">
+      <StatusDot online={stats.online} />
+      <span class="font-medium text-[var(--color-text)]">
+        {stats.online ? "online" : "offline"}
+      </span>
+    </span>
+    {stats.servers !== null && (
+      <>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="tabular text-[var(--color-muted)]">{formatNumber(stats.servers)} servers</span>
+      </>
+    )}
+    {stats.users !== null && (
+      <>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="tabular text-[var(--color-muted)]">{formatNumber(stats.users)} users</span>
+      </>
+    )}
+    {stats.uptimeMs !== null && (
+      <>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="tabular text-[var(--color-muted)]">up {formatUptime(stats.uptimeMs)}</span>
+      </>
+    )}
+  </div>
+)}

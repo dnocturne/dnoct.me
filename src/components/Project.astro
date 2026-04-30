@@ -1,16 +1,33 @@
 ---
 /**
  * Renders a single project as a block in the vertical listing.
- * No card chrome - just typography, a type badge, and either a deferred
- * StatsIsland for live data (hosted/oss) or an inline WipContent (wip).
  *
- * Hosted and wip projects get a larger, more prominent treatment because
- * they have richer content (description, features, tech, CTA button).
- * OSS projects are compact rows - name + description + one stats line + link.
+ * Static content (config-driven taglines, descriptions, notes, feature pills,
+ * tech pills, every button whose URL is known at build time) renders
+ * synchronously here. Only the genuinely dynamic pieces are deferred via
+ * small targeted islands:
+ *   - HostedStatusLine    : live online/offline + servers/users/uptime
+ *   - OssStatsAndCommit   : stars, language, sha, version, commit subject
+ *   - OssWorkshopLine     : Steam Workshop counters (mod role only)
+ *
+ * Notes on what is intentionally NOT deferred:
+ *   - OSS taglines come from `project.tagline` in config when set, never from
+ *     a GitHub fetch. Use `project.note` for descriptive copy.
+ *   - There is no GitHub release download button. Plugins distribute via
+ *     Modrinth (or another platform link in config); the version pill in the
+ *     stats line still shows the latest tag when releases exist.
+ *   Both deletions were made because rendering a skeleton for content that
+ *   may resolve to nothing (repos without descriptions / without releases)
+ *   is misleading.
+ *
+ * Each island is replaced in-place with a small fallback skeleton sized to
+ * match the actual content, so the surrounding static layout doesn't shift
+ * or pop in.
  */
 import type { Project } from "../config/projects";
-import StatsIsland from "./StatsIsland.astro";
-import StatsSkeleton from "./StatsSkeleton.astro";
+import HostedStatusLine from "./HostedStatusLine.astro";
+import OssStatsAndCommit from "./OssStatsAndCommit.astro";
+import OssWorkshopLine from "./OssWorkshopLine.astro";
 import WipContent from "./WipContent.astro";
 
 interface Props {
@@ -39,17 +56,25 @@ const badgeIcon =
   : role === "plugin" ? "◇"
   : "⬢";
 
-// Hosted is brightest (live), wip uses the same accent green to signal
-// "actively being built", oss falls back to muted.
 const badgeColor =
   role === "hosted" || role === "wip"
     ? "text-[var(--color-accent)]"
     : "text-[var(--color-muted)]";
 
-const isLargeTile = project.type === "hosted" || project.type === "wip";
+// Shared geometry for every platform CTA. Each call site appends the
+// platform-specific bg/text/border classes.
+const platformButtonClass =
+  "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90";
+
+// Source URL is derivable from owner/repo for OSS projects, so the
+// "view source" button is fully static (no GitHub fetch needed).
+const sourceUrl =
+  project.type === "oss"
+    ? `https://github.com/${project.owner}/${project.repo}`
+    : null;
 ---
 
-{isLargeTile ? (
+{project.type === "hosted" && (
   <article class="flex flex-col gap-5">
     <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
       <span aria-hidden="true">{badgeIcon}</span>
@@ -60,16 +85,86 @@ const isLargeTile = project.type === "hosted" || project.type === "wip";
       {project.name}
     </h3>
 
-    {project.type === "hosted" ? (
-      <StatsIsland project={project} server:defer>
-        <StatsSkeleton variant="hosted" slot="fallback" />
-      </StatsIsland>
-    ) : project.type === "wip" ? (
-      <WipContent project={project} />
-    ) : null}
+    <p class="text-xl text-[var(--color-text)]">{project.tagline}</p>
+
+    {project.description && (
+      <p class="max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
+        {project.description}
+      </p>
+    )}
+
+    {project.note && (
+      <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-4 text-sm leading-relaxed text-[var(--color-muted)]">
+        {project.note}
+      </p>
+    )}
+
+    {project.features.length > 0 && (
+      <div class="flex flex-wrap gap-1.5">
+        {project.features.map((f) => (
+          <span class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs text-[var(--color-muted)]">
+            {f}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <HostedStatusLine project={project} server:defer>
+      <div
+        slot="fallback"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
+        aria-hidden="true"
+      >
+        <span class="inline-block h-4 w-48 animate-pulse rounded bg-[var(--color-border)]"></span>
+      </div>
+    </HostedStatusLine>
+
+    {project.tech.length > 0 && (
+      <div class="flex flex-wrap gap-1.5">
+        {project.tech.map((t) => (
+          <span class="rounded-md bg-[var(--color-surface)] px-2 py-1 font-mono text-[11px] text-[var(--color-muted)]">
+            {t}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <div class="mt-2 flex flex-wrap items-center gap-4">
+      <a
+        href={project.inviteUrl}
+        class={`${platformButtonClass} bg-[var(--color-discord)] text-[var(--color-discord-text)]`}
+      >
+        <img src="/discord.svg" class="h-4 w-auto shrink-0" alt="" aria-hidden="true" />
+        <span>invite to discord</span>
+      </a>
+      <a
+        href={project.url}
+        class="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+      >
+        <span>{project.url.replace(/^https?:\/\//, "")}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
   </article>
-) : (
-  <article class="flex flex-col gap-3 border-t border-[var(--color-border)] pt-6">
+)}
+
+{project.type === "wip" && (
+  <article class="flex flex-col gap-5">
+    <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
+      <span aria-hidden="true">{badgeIcon}</span>
+      <span>{badge}</span>
+    </div>
+
+    <h3 class="text-5xl font-semibold leading-none tracking-tight text-[var(--color-text)] md:text-6xl">
+      {project.name}
+    </h3>
+
+    <WipContent project={project} />
+  </article>
+)}
+
+{project.type === "oss" && (
+  <article class="flex flex-col gap-2 border-t border-[var(--color-border)] pt-6">
     <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
       <h3 class="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
         <span aria-hidden="true" class={`mr-2 ${badgeColor}`}>{badgeIcon}</span>
@@ -80,8 +175,80 @@ const isLargeTile = project.type === "hosted" || project.type === "wip";
       </span>
     </div>
 
-    <StatsIsland project={project} server:defer>
-      <StatsSkeleton variant="oss" slot="fallback" />
-    </StatsIsland>
+    {project.tagline && (
+      <p class="max-w-2xl text-sm leading-relaxed text-[var(--color-muted)]">
+        {project.tagline}
+      </p>
+    )}
+
+    {project.note && (
+      <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-3 text-xs leading-relaxed text-[var(--color-muted)]">
+        {project.note}
+      </p>
+    )}
+
+    <OssStatsAndCommit project={project} server:defer>
+      <div slot="fallback" class="space-y-1" aria-hidden="true">
+        <div class="h-3 w-2/3 max-w-md animate-pulse rounded bg-[var(--color-border)]"></div>
+        <div class="h-3 w-1/2 max-w-sm animate-pulse rounded bg-[var(--color-border)]"></div>
+      </div>
+    </OssStatsAndCommit>
+
+    {project.role === "mod" && project.steamWorkshopUrl && (
+      <OssWorkshopLine workshopUrl={project.steamWorkshopUrl} server:defer>
+        <div
+          slot="fallback"
+          class="h-3 w-2/3 max-w-md animate-pulse rounded bg-[var(--color-border)]"
+          aria-hidden="true"
+        ></div>
+      </OssWorkshopLine>
+    )}
+
+    <div class="mt-2 flex flex-wrap items-center gap-3 text-sm">
+      {project.modrinthUrl && (
+        <a
+          href={project.modrinthUrl}
+          class={`${platformButtonClass} bg-[var(--color-modrinth)] text-[var(--color-modrinth-text)]`}
+        >
+          <img
+            src="/modrinth.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
+          <span>install on modrinth</span>
+        </a>
+      )}
+
+      {project.role === "mod" && project.steamWorkshopUrl && (
+        <a
+          href={project.steamWorkshopUrl}
+          class={`${platformButtonClass} bg-[var(--color-steam)] text-[var(--color-steam-text)]`}
+        >
+          <img
+            src="/steam.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
+          <span>install on steam</span>
+        </a>
+      )}
+
+      {sourceUrl && (
+        <a
+          href={sourceUrl}
+          class={`${platformButtonClass} border border-[var(--color-github-border)] bg-[var(--color-github)] text-[var(--color-github-text)]`}
+        >
+          <img
+            src="/GitHub_light.svg"
+            class="h-4 w-auto shrink-0"
+            alt=""
+            aria-hidden="true"
+          />
+          <span>view source</span>
+        </a>
+      )}
+    </div>
   </article>
 )}

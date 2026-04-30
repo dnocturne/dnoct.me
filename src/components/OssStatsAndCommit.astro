@@ -1,0 +1,87 @@
+---
+/**
+ * Server Island: GitHub-stats line + (optional) latest-commit subject for
+ * an OSS project. These two pieces are visually adjacent and share the same
+ * underlying GitHub fetch, so they live in one island.
+ *
+ * Renders a Fragment of one or two top-level elements; the parent's flex-col
+ * gap-2 spaces them like the rest of the OSS tile.
+ */
+import type { Project } from "../config/projects";
+import { fetchStats } from "../lib/data";
+import { getLanguageColor } from "../lib/data/language-colors";
+import { formatNumber, formatRelativeTime } from "../lib/format";
+
+interface Props {
+  project: Extract<Project, { type: "oss" }>;
+}
+
+const { project } = Astro.props;
+const stats = await fetchStats(project);
+---
+
+{stats.kind === "oss" && (
+  <Fragment>
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--color-muted)]">
+      {stats.stars !== null && (
+        <span class="tabular">★ {formatNumber(stats.stars)}</span>
+      )}
+      {project.role === "plugin" && stats.downloads !== null && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="tabular">↓ {formatNumber(stats.downloads)}</span>
+        </>
+      )}
+      {stats.language && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="inline-flex items-center gap-1.5">
+            {getLanguageColor(stats.language) ? (
+              <span
+                class="inline-block size-2 rounded-full"
+                style={`background-color: ${getLanguageColor(stats.language)}`}
+                aria-hidden="true"
+              />
+            ) : (
+              <span
+                class="inline-block size-2 rounded-full bg-[var(--color-dim)]"
+                aria-hidden="true"
+              />
+            )}
+            <span>{stats.language}</span>
+          </span>
+        </>
+      )}
+      {stats.latestCommit && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <a
+            href={stats.latestCommit.url}
+            class="tabular transition-colors hover:text-[var(--color-text)]"
+          >
+            {stats.latestCommit.sha}
+          </a>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span>{formatRelativeTime(stats.latestCommit.date)}</span>
+        </>
+      )}
+      {stats.version && (
+        <>
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="rounded-md bg-[color-mix(in_oklab,var(--color-accent)_20%,transparent)] px-1.5 py-0.5 text-[var(--color-accent)]">
+            {stats.version}
+          </span>
+        </>
+      )}
+    </div>
+
+    {stats.latestCommit?.message && (
+      <p
+        class="truncate font-mono text-xs text-[var(--color-dim)]"
+        title={stats.latestCommit.message}
+      >
+        → {stats.latestCommit.message}
+      </p>
+    )}
+  </Fragment>
+)}

@@ -1,0 +1,31 @@
+---
+/**
+ * Server Island: Steam Workshop counters (visits / subscribers / favorites)
+ * for OSS mod projects. Independent of the GitHub fetch so the two stats
+ * sources can resolve in parallel.
+ *
+ * Takes only the workshop URL, no dependence on the rest of the project
+ * config beyond what's needed to drive the Steam API call.
+ */
+import { fetchWorkshopStats } from "../lib/data/steam-workshop";
+import { formatNumber } from "../lib/format";
+
+interface Props {
+  workshopUrl: string;
+}
+
+const { workshopUrl } = Astro.props;
+const workshop = await fetchWorkshopStats(workshopUrl);
+---
+
+{workshop && (
+  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--color-muted)]">
+    <span class="text-[var(--color-dim)]">steam</span>
+    <span class="text-[var(--color-dim)]">·</span>
+    <span class="tabular">{formatNumber(workshop.views)} visits</span>
+    <span class="text-[var(--color-dim)]">·</span>
+    <span class="tabular">{formatNumber(workshop.subscribers)} subscribers</span>
+    <span class="text-[var(--color-dim)]">·</span>
+    <span class="tabular">{formatNumber(workshop.favorites)} favorites</span>
+  </div>
+)}
