@@ -104,6 +104,10 @@ async function fetchGithubStatsLive(owner: string, repo: string): Promise<OssSta
     downloadUrl,
     sourceUrl: repoData.html_url,
     latestCommit,
+    // Workshop is merged in by the orchestrator (lib/data/index.ts) when the
+    // project is a mod with a steamWorkshopUrl. The github fetcher itself
+    // doesn't know about Steam.
+    workshop: null,
   };
 }
 

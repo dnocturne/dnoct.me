@@ -12,6 +12,18 @@ export interface LatestCommit {
   sha: string;
 }
 
+/**
+ * Steam Workshop counters for mod-role projects.
+ * `views` is lifetime (unique visitors, can only grow).
+ * `subscribers` and `favorites` are current (people currently subscribed /
+ * who currently have it favorited; can drop as people unsubscribe).
+ */
+export interface WorkshopStats {
+  views: number;
+  subscribers: number;
+  favorites: number;
+}
+
 export interface OssStats {
   kind: "oss";
   status: Status;
@@ -24,6 +36,8 @@ export interface OssStats {
   downloadUrl: string | null;
   sourceUrl: string | null;
   latestCommit: LatestCommit | null;
+  /** Populated only when the project has role "mod" + a steamWorkshopUrl. */
+  workshop: WorkshopStats | null;
 }
 
 export interface HostedStats {
@@ -50,6 +64,7 @@ export const emptyOssStats = (): OssStats => ({
   downloadUrl: null,
   sourceUrl: null,
   latestCommit: null,
+  workshop: null,
 });
 
 export const emptyHostedStats = (): HostedStats => ({

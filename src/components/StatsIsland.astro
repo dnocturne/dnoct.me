@@ -200,6 +200,18 @@ const tagline =
       )}
     </div>
 
+    {stats.workshop && (
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--color-muted)]">
+        <span class="text-[var(--color-dim)]">steam</span>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="tabular">{formatNumber(stats.workshop.views)} visits</span>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="tabular">{formatNumber(stats.workshop.subscribers)} subscribers</span>
+        <span class="text-[var(--color-dim)]">·</span>
+        <span class="tabular">{formatNumber(stats.workshop.favorites)} favorites</span>
+      </div>
+    )}
+
     {stats.latestCommit?.message && (
       <p
         class="truncate font-mono text-xs text-[var(--color-dim)]"
