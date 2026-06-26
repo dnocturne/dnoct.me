@@ -75,98 +75,120 @@ const sourceUrl =
 ---
 
 {project.type === "hosted" && (
-  <article class="flex flex-col gap-5">
-    <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
-      <span aria-hidden="true">{badgeIcon}</span>
-      <span>{badge}</span>
+  <article class="grid gap-x-12 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
+    <div class="flex flex-col gap-5">
+      <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
+        <span aria-hidden="true">{badgeIcon}</span>
+        <span>{badge}</span>
+      </div>
+
+      <h3 class="font-display text-5xl font-medium leading-[0.95] text-[var(--color-text)] md:text-6xl">
+        {project.name}
+      </h3>
+
+      <p class="text-xl text-[var(--color-text)]">{project.tagline}</p>
+
+      {project.description && (
+        <p class="max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
+          {project.description}
+        </p>
+      )}
+
+      {project.note && (
+        <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-4 text-sm leading-relaxed text-[var(--color-muted)]">
+          {project.note}
+        </p>
+      )}
     </div>
 
-    <h3 class="text-5xl font-semibold leading-none tracking-tight text-[var(--color-text)] md:text-6xl">
-      {project.name}
-    </h3>
+    <div class="flex flex-col gap-5 lg:border-l lg:border-[var(--color-border)] lg:pl-8 lg:pt-1">
+      <HostedStatusLine project={project} server:defer>
+        <div
+          slot="fallback"
+          class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
+          aria-hidden="true"
+        >
+          <span class="inline-block h-4 w-48 animate-pulse rounded bg-[var(--color-border)]"></span>
+        </div>
+      </HostedStatusLine>
 
-    <p class="text-xl text-[var(--color-text)]">{project.tagline}</p>
+      {project.features.length > 0 && (
+        <div class="flex flex-wrap gap-1.5">
+          {project.features.map((f) => (
+            <span class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs text-[var(--color-muted)]">
+              {f}
+            </span>
+          ))}
+        </div>
+      )}
 
-    {project.description && (
-      <p class="max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
-        {project.description}
-      </p>
-    )}
+      {project.tech.length > 0 && (
+        <div class="flex flex-wrap gap-1.5">
+          {project.tech.map((t) => (
+            <span class="rounded-md bg-[var(--color-surface)] px-2 py-1 text-xs text-[var(--color-muted)]">
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
 
-    {project.note && (
-      <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-4 text-sm leading-relaxed text-[var(--color-muted)]">
-        {project.note}
-      </p>
-    )}
-
-    {project.features.length > 0 && (
-      <div class="flex flex-wrap gap-1.5">
-        {project.features.map((f) => (
-          <span class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs text-[var(--color-muted)]">
-            {f}
-          </span>
-        ))}
+      <div class="mt-1 flex flex-col items-start gap-3">
+        <a
+          href={project.inviteUrl}
+          class={`${platformButtonClass} bg-[var(--color-discord)] text-[var(--color-discord-text)]`}
+        >
+          <img src="/discord.svg" class="h-4 w-auto shrink-0" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+          <span>invite to discord</span>
+        </a>
+        <a
+          href={project.url}
+          class="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+        >
+          <span>{project.url.replace(/^https?:\/\//, "")}</span>
+          <span aria-hidden="true">↗</span>
+        </a>
       </div>
-    )}
-
-    <HostedStatusLine project={project} server:defer>
-      <div
-        slot="fallback"
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
-        aria-hidden="true"
-      >
-        <span class="inline-block h-4 w-48 animate-pulse rounded bg-[var(--color-border)]"></span>
-      </div>
-    </HostedStatusLine>
-
-    {project.tech.length > 0 && (
-      <div class="flex flex-wrap gap-1.5">
-        {project.tech.map((t) => (
-          <span class="rounded-md bg-[var(--color-surface)] px-2 py-1 font-mono text-[11px] text-[var(--color-muted)]">
-            {t}
-          </span>
-        ))}
-      </div>
-    )}
-
-    <div class="mt-2 flex flex-wrap items-center gap-4">
-      <a
-        href={project.inviteUrl}
-        class={`${platformButtonClass} bg-[var(--color-discord)] text-[var(--color-discord-text)]`}
-      >
-        <img src="/discord.svg" class="h-4 w-auto shrink-0" alt="" aria-hidden="true" />
-        <span>invite to discord</span>
-      </a>
-      <a
-        href={project.url}
-        class="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-      >
-        <span>{project.url.replace(/^https?:\/\//, "")}</span>
-        <span aria-hidden="true">↗</span>
-      </a>
     </div>
   </article>
 )}
 
 {project.type === "wip" && (
-  <article class="flex flex-col gap-5">
-    <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
-      <span aria-hidden="true">{badgeIcon}</span>
-      <span>{badge}</span>
+  <article class="grid gap-x-12 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
+    <div class="flex flex-col gap-5">
+      <div class={`flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] ${badgeColor}`}>
+        <span aria-hidden="true">{badgeIcon}</span>
+        <span>{badge}</span>
+      </div>
+
+      <h3 class="font-display text-5xl font-medium leading-[0.95] text-[var(--color-text)] md:text-6xl">
+        {project.name}
+      </h3>
+
+      <p class="text-xl text-[var(--color-text)]">{project.tagline}</p>
+
+      {project.description && (
+        <p class="max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
+          {project.description}
+        </p>
+      )}
+
+      {project.note && (
+        <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-4 text-sm leading-relaxed text-[var(--color-muted)]">
+          {project.note}
+        </p>
+      )}
     </div>
 
-    <h3 class="text-5xl font-semibold leading-none tracking-tight text-[var(--color-text)] md:text-6xl">
-      {project.name}
-    </h3>
-
-    <WipContent project={project} />
+    <div class="flex flex-col gap-5 lg:border-l lg:border-[var(--color-border)] lg:pl-8 lg:pt-1">
+      <WipContent project={project} />
+    </div>
   </article>
 )}
 
 {project.type === "oss" && (
-  <article class="flex flex-col gap-2 border-t border-[var(--color-border)] pt-6">
+  <article class="group flex flex-col gap-2 border-t border-[var(--color-border)] pt-6 transition-colors hover:border-[var(--color-accent-2-dim)]">
     <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <h3 class="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
+      <h3 class="font-display text-2xl font-medium text-[var(--color-text)]">
         <span aria-hidden="true" class={`mr-2 ${badgeColor}`}>{badgeIcon}</span>
         {project.name}
       </h3>
@@ -215,6 +237,8 @@ const sourceUrl =
             class="h-4 w-auto shrink-0"
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
           />
           <span>install on modrinth</span>
         </a>
@@ -230,6 +254,8 @@ const sourceUrl =
             class="h-4 w-auto shrink-0"
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
           />
           <span>install on steam</span>
         </a>
@@ -245,6 +271,8 @@ const sourceUrl =
             class="h-4 w-auto shrink-0"
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
           />
           <span>view source</span>
         </a>

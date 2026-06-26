@@ -22,7 +22,7 @@ const stats = await fetchStats(project);
 
 {stats.kind === "oss" && (
   <Fragment>
-    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--color-muted)]">
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--color-muted)]">
       {stats.stars !== null && (
         <span class="tabular">★ {formatNumber(stats.stars)}</span>
       )}
@@ -77,7 +77,7 @@ const stats = await fetchStats(project);
 
     {stats.latestCommit?.message && (
       <p
-        class="truncate font-mono text-xs text-[var(--color-dim)]"
+        class="truncate text-xs text-[var(--color-muted)]"
         title={stats.latestCommit.message}
       >
         → {stats.latestCommit.message}

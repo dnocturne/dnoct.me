@@ -1,9 +1,9 @@
 ---
 /**
- * Renders the body of a "wip" project tile (description-led, no live data).
- * Visual rhythm mirrors the hosted/nyx layout in Project.astro so
- * "Running" and "Working on" sections feel like siblings, minus the live
- * status line and stats.
+ * Renders the meta/actions column of a "wip" project tile (features, tech,
+ * and CTAs — no live data). The title/tagline/description live in the left
+ * column of Project.astro, so this mirrors the right-hand rail of the
+ * hosted/nyx layout and the two sections feel like siblings.
  */
 import type { Project } from "../config/projects";
 
@@ -16,57 +16,41 @@ const { project } = Astro.props;
 const ctaLabel = project.ctaLabel ?? "visit site";
 ---
 
-<div class="flex flex-col gap-5">
-  <p class="text-xl text-[var(--color-text)]">{project.tagline}</p>
-
-  {project.description && (
-    <p class="max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
-      {project.description}
-    </p>
-  )}
-
-  {project.note && (
-    <p class="max-w-2xl border-l-2 border-[var(--color-accent-dim)] pl-4 text-sm leading-relaxed text-[var(--color-muted)]">
-      {project.note}
-    </p>
-  )}
-
-  {project.features && project.features.length > 0 && (
-    <div class="flex flex-wrap gap-1.5">
-      {project.features.map((f) => (
-        <span class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs text-[var(--color-muted)]">
-          {f}
-        </span>
-      ))}
-    </div>
-  )}
-
-  {project.tech && project.tech.length > 0 && (
-    <div class="flex flex-wrap gap-1.5">
-      {project.tech.map((t) => (
-        <span class="rounded-md bg-[var(--color-surface)] px-2 py-1 font-mono text-[11px] text-[var(--color-muted)]">
-          {t}
-        </span>
-      ))}
-    </div>
-  )}
-
-  <div class="mt-2 flex flex-wrap items-center gap-4">
-    <a
-      href={project.url}
-      class="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90"
-    >
-      <span>{ctaLabel}</span>
-      <span aria-hidden="true">↗</span>
-    </a>
-    {project.links?.map((link) => (
-      <a
-        href={link.href}
-        class="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-      >
-        <span>{link.label}</span>
-        <span aria-hidden="true">↗</span>
-      </a>
+{project.features && project.features.length > 0 && (
+  <div class="flex flex-wrap gap-1.5">
+    {project.features.map((f) => (
+      <span class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs text-[var(--color-muted)]">
+        {f}
+      </span>
     ))}
   </div>
+)}
+
+{project.tech && project.tech.length > 0 && (
+  <div class="flex flex-wrap gap-1.5">
+    {project.tech.map((t) => (
+      <span class="rounded-md bg-[var(--color-surface)] px-2 py-1 text-xs text-[var(--color-muted)]">
+        {t}
+      </span>
+    ))}
+  </div>
+)}
+
+<div class="mt-1 flex flex-col items-start gap-3">
+  <a
+    href={project.url}
+    class="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90"
+  >
+    <span>{ctaLabel}</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+  {project.links?.map((link) => (
+    <a
+      href={link.href}
+      class="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+    >
+      <span>{link.label}</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  ))}
 </div>

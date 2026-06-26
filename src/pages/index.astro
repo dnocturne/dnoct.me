@@ -15,6 +15,12 @@ const hosted: ProjectType[] = projects.filter((p) => p.type === "hosted");
 const wip: ProjectType[] = projects.filter((p) => p.type === "wip");
 const oss: ProjectType[] = projects.filter((p) => p.type === "oss");
 
+const navItems = [
+  { href: "#running", n: "01", label: "Running" },
+  { href: "#working-on", n: "02", label: "Working on" },
+  { href: "#open-source", n: "03", label: "Open source" },
+];
+
 const year = new Date().getFullYear();
 
 /**
@@ -106,7 +112,7 @@ const jsonLd = {
     <title>{seoTitle}</title>
     <meta name="description" content={seoDescription} />
     <meta name="author" content="Dominykas Jankantas" />
-    <meta name="theme-color" content="#1a1a1a" />
+    <meta name="theme-color" content="#121318" />
     <link rel="canonical" href={canonicalUrl} />
 
     <!-- Icons -->
@@ -137,187 +143,191 @@ const jsonLd = {
     <!-- Structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   </head>
-  <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] antialiased">
-    <div class="min-h-screen md:grid md:grid-cols-[20rem_1fr]">
-      <aside
-        class="flex flex-col gap-8 border-b border-[var(--color-border)] px-6 py-12 md:sticky md:top-0 md:h-screen md:border-b-0 md:border-r md:px-10 md:py-16"
-      >
-        <header class="flex flex-col gap-2">
-          <h1 class="text-2xl font-medium tracking-tight">dnoct.me</h1>
-          <div class="min-h-[3.75rem]">
-            <RandomQuote server:defer>
-              <div
-                slot="fallback"
-                class="flex flex-col gap-1.5"
-                aria-hidden="true"
-              >
-                <div class="h-3 w-full animate-pulse rounded bg-[var(--color-border)]"></div>
-                <div class="h-3 w-2/3 animate-pulse rounded bg-[var(--color-border)]"></div>
-              </div>
-            </RandomQuote>
-          </div>
-        </header>
+  <body id="top" class="relative min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+    <div class="atmosphere" aria-hidden="true"></div>
 
-        <p class="text-sm leading-relaxed text-[var(--color-muted)]">
-          <span class="text-[var(--color-text)]"
-            >Professional Bachelor of Computing in Informatics</span
-          >, graduated 2026 from
-          <span lang="lt" class="text-[var(--color-text)]">Klaipėdos valstybinė kolegija</span>.
-        </p>
+    <!-- Slim sticky top bar: brand left, section index center, Discord right. -->
+    <header
+      class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-bg)_72%,transparent)] backdrop-blur-md"
+    >
+      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6 md:px-10">
+        <a href="#top" class="group flex items-center gap-2">
+          <span class="font-display text-lg font-medium text-[var(--color-text)]">dnoct.me</span>
+          <span
+            class="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)] shadow-[0_0_8px_var(--color-accent-2)]"
+            aria-hidden="true"
+          ></span>
+        </a>
 
-        <div class="flex flex-col gap-2">
-          <AgeCounter
-            year={2003}
-            month={4}
-            day={28}
-            timezone="Europe/Vilnius"
-            server:defer
-          >
-            <span
-              slot="fallback"
-              class="inline-block h-5 w-28 animate-pulse rounded bg-[var(--color-border)]"
-              aria-hidden="true"
-            ></span>
-          </AgeCounter>
-
-          <DiscordPresence
-            userId="263304948291207170"
-            username="dnocturne"
-            steamId="76561197961705602"
-            server:defer
-          >
-            <span
-              slot="fallback"
-              class="inline-block h-5 w-44 animate-pulse rounded bg-[var(--color-border)]"
-              aria-hidden="true"
-            ></span>
-          </DiscordPresence>
-        </div>
-
-        <nav class="flex flex-col gap-1 text-sm">
-          <a
-            href="#running"
-            class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Running
-          </a>
-          <a
-            href="#working-on"
-            class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Working on
-          </a>
-          <a
-            href="#open-source"
-            class="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Open source
-          </a>
+        <nav class="hidden items-center gap-7 text-sm sm:flex">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class="group flex items-baseline gap-2 text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+            >
+              <span class="font-display text-xs text-[var(--color-dim)] transition-colors group-hover:text-[var(--color-accent-2)]">
+                {item.n}
+              </span>
+              <span>{item.label}</span>
+            </a>
+          ))}
         </nav>
 
         <a
           href="https://discord.dnoct.me"
-          class="group inline-flex items-center gap-3 rounded-lg bg-[var(--color-discord)] px-4 py-3 text-[var(--color-discord-text)] transition-opacity hover:opacity-90"
+          class="group inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-muted)] transition-colors hover:border-[var(--color-accent-2-dim)] hover:text-[var(--color-text)]"
         >
-          <img
-            src="/discord.svg"
-            class="h-6 w-auto shrink-0"
-            alt=""
-            aria-hidden="true"
-          />
-          <span class="flex flex-col leading-tight">
-            <span class="text-sm font-semibold">Join my Discord</span>
-            <span class="text-xs text-white/60">discord.dnoct.me</span>
-          </span>
+          <img src="/discord.svg" class="h-4 w-auto shrink-0" alt="" aria-hidden="true" />
+          <span class="hidden sm:inline">Discord</span>
         </a>
+      </div>
+    </header>
 
-        <footer class="mt-auto flex flex-col gap-2 text-xs text-[var(--color-muted)]">
-          <div class="flex flex-wrap gap-x-3 gap-y-1">
-            <a
-              href="https://github.com/dnocturne"
-              class="transition-colors hover:text-[var(--color-text)]"
-            >
-              github
-            </a>
-            <span aria-hidden="true" class="text-[var(--color-dim)]">·</span>
-            <a
-              href="https://www.linkedin.com/in/dominykas-jankantas-315226361/"
-              class="transition-colors hover:text-[var(--color-text)]"
-            >
-              linkedin
-            </a>
-            <span aria-hidden="true" class="text-[var(--color-dim)]">·</span>
-            <a
-              href="mailto:dominykas@dnoct.me"
-              class="transition-colors hover:text-[var(--color-text)]"
-            >
-              email
-            </a>
+    <div class="relative z-[1] mx-auto max-w-6xl px-6 md:px-10">
+      <!-- HERO -->
+      <section class="relative flex flex-col justify-center pt-14 pb-16">
+        <p class="reveal text-[0.7rem] font-medium uppercase tracking-[0.42em] text-[var(--color-accent-2)]">
+          @dnocturne · software developer
+        </p>
+
+        <h1
+          class="reveal mt-6 font-display text-[clamp(3rem,12vw,9.5rem)] font-medium leading-[0.82] text-[var(--color-text)]"
+          style="animation-delay:60ms"
+        >
+          Dominykas<br />Jankantas
+        </h1>
+
+        <div class="reveal mt-8 flex max-w-xl flex-col gap-5" style="animation-delay:200ms">
+          <p class="text-sm leading-relaxed text-[var(--color-muted)]">
+            <span class="text-[var(--color-text)]">Professional Bachelor of Computing in Informatics</span>, graduated 2026 from
+            <span lang="lt" class="text-[var(--color-text)]">Klaipėdos valstybinė kolegija</span>. Based in Klaipėda, Lithuania.
+          </p>
+
+          <div class="min-h-[1.5rem]">
+            <RandomQuote server:defer>
+              <div slot="fallback" class="h-4 w-2/3 animate-pulse rounded bg-[var(--color-border)]" aria-hidden="true"></div>
+            </RandomQuote>
           </div>
-          <span class="text-[var(--color-dim)]">&copy; {year}</span>
-        </footer>
-      </aside>
 
-      <main class="flex flex-col gap-16 px-6 py-12 md:px-16 md:py-16 lg:px-20">
+          <div class="flex flex-col gap-2 border-l-2 border-[var(--color-accent-dim)] pl-5 text-sm">
+            <AgeCounter
+              year={2003}
+              month={4}
+              day={28}
+              timezone="Europe/Vilnius"
+              server:defer
+            >
+              <span
+                slot="fallback"
+                class="inline-block h-5 w-28 animate-pulse rounded bg-[var(--color-border)]"
+                aria-hidden="true"
+              ></span>
+            </AgeCounter>
+
+            <DiscordPresence
+              userId="263304948291207170"
+              username="dnocturne"
+              steamId="76561197961705602"
+              server:defer
+            >
+              <span
+                slot="fallback"
+                class="inline-block h-5 w-44 animate-pulse rounded bg-[var(--color-border)]"
+                aria-hidden="true"
+              ></span>
+            </DiscordPresence>
+          </div>
+        </div>
+
+        <div class="reveal mt-8 flex flex-wrap items-center gap-3" style="animation-delay:280ms">
+          <a
+            href="https://discord.dnoct.me"
+            class="group inline-flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-discord)_55%,transparent)] px-4 py-3 backdrop-blur-sm transition-colors hover:border-[var(--color-accent-2-dim)]"
+          >
+            <img src="/discord.svg" class="h-6 w-auto shrink-0" alt="" aria-hidden="true" />
+            <span class="flex flex-col leading-tight text-left">
+              <span class="text-sm font-medium text-[var(--color-text)]">Join my Discord</span>
+              <span class="text-xs text-[var(--color-muted)]">discord.dnoct.me</span>
+            </span>
+            <span class="ml-1 text-[var(--color-dim)] transition-colors group-hover:text-[var(--color-accent-2)]" aria-hidden="true">↗</span>
+          </a>
+
+          <div class="flex items-center gap-x-4 px-2 text-sm text-[var(--color-muted)]">
+            <a href="https://github.com/dnocturne" class="transition-colors hover:text-[var(--color-text)]">github</a>
+            <span aria-hidden="true" class="text-[var(--color-dim)]">·</span>
+            <a href="https://www.linkedin.com/in/dominykas-jankantas-315226361/" class="transition-colors hover:text-[var(--color-text)]">linkedin</a>
+            <span aria-hidden="true" class="text-[var(--color-dim)]">·</span>
+            <a href="mailto:dominykas@dnoct.me" class="transition-colors hover:text-[var(--color-text)]">email</a>
+          </div>
+        </div>
+      </section>
+
+      <main class="flex flex-col gap-24 pb-16">
         {hosted.length > 0 && (
-          <section id="running" class="flex flex-col gap-8 scroll-mt-12">
-            <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
-              Running
-            </h2>
+          <section id="running" class="flex flex-col gap-10 scroll-mt-24">
+            <div class="flex items-center gap-4">
+              <span class="font-display text-base text-[var(--color-accent-2)]">01</span>
+              <h2 class="text-xs font-medium uppercase tracking-[0.25em] text-[var(--color-muted)]">Running</h2>
+              <span class="h-px flex-1 bg-gradient-to-r from-[var(--color-border)] to-transparent"></span>
+            </div>
             {hosted.map((p) => <Project project={p} />)}
           </section>
         )}
 
         {wip.length > 0 && (
-          <section id="working-on" class="flex flex-col gap-8 scroll-mt-12">
-            <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
-              Projects I'm working on
-            </h2>
+          <section id="working-on" class="flex flex-col gap-10 scroll-mt-24">
+            <div class="flex items-center gap-4">
+              <span class="font-display text-base text-[var(--color-accent-2)]">02</span>
+              <h2 class="text-xs font-medium uppercase tracking-[0.25em] text-[var(--color-muted)]">Working on</h2>
+              <span class="h-px flex-1 bg-gradient-to-r from-[var(--color-border)] to-transparent"></span>
+            </div>
             {wip.map((p) => <Project project={p} />)}
           </section>
         )}
 
         {oss.length > 0 && (
-          <section id="open-source" class="flex flex-col gap-6 scroll-mt-12">
-            <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
-              Open source
-            </h2>
-            <div class="grid items-start gap-x-12 gap-y-6 sm:grid-cols-2">
+          <section id="open-source" class="flex flex-col gap-8 scroll-mt-24">
+            <div class="flex items-center gap-4">
+              <span class="font-display text-base text-[var(--color-accent-2)]">03</span>
+              <h2 class="text-xs font-medium uppercase tracking-[0.25em] text-[var(--color-muted)]">Open source</h2>
+              <span class="h-px flex-1 bg-gradient-to-r from-[var(--color-border)] to-transparent"></span>
+            </div>
+            <div class="grid items-start gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
               {oss.map((p) => <Project project={p} />)}
             </div>
           </section>
         )}
-
-        <footer
-          class="mt-auto flex flex-col gap-2 border-t border-[var(--color-border)] pt-8 text-xs text-[var(--color-muted)]"
-        >
-          <p>
-            Built with <a href="https://astro.build" class="transition-colors hover:text-[var(--color-text)]">Astro</a> and <a href="https://tailwindcss.com" class="transition-colors hover:text-[var(--color-text)]">Tailwind CSS</a>, hosted on <a href="https://vercel.com" class="transition-colors hover:text-[var(--color-text)]">Vercel</a>. Type set in <span class="text-[var(--color-text)]">Inter</span> and <span class="font-mono text-[var(--color-text)]">JetBrains Mono</span>. Logos via <a href="https://svgl.app" class="transition-colors hover:text-[var(--color-text)]">svgl.app</a>.
-          </p>
-          <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <a
-              href="https://github.com/dnocturne/dnoct.me"
-              class="inline-flex items-center gap-1 transition-colors hover:text-[var(--color-text)]"
-            >
-              <span>view source of this site</span>
-              <span aria-hidden="true">↗</span>
-            </a>
-            {buildCommitShort && buildCommitUrl && (
-              <>
-                <span class="text-[var(--color-dim)]">·</span>
-                <span>built from</span>
-                <a
-                  href={buildCommitUrl}
-                  class="tabular font-mono transition-colors hover:text-[var(--color-text)]"
-                  title={buildCommit ?? undefined}
-                >
-                  {buildCommitShort}
-                </a>
-              </>
-            )}
-          </div>
-        </footer>
       </main>
+
+      <footer class="flex flex-col gap-2 border-t border-[var(--color-border)] py-8 text-xs text-[var(--color-muted)]">
+        <p>
+          Built with <a href="https://astro.build" class="transition-colors hover:text-[var(--color-text)]">Astro</a> and <a href="https://tailwindcss.com" class="transition-colors hover:text-[var(--color-text)]">Tailwind CSS</a>, hosted on <a href="https://vercel.com" class="transition-colors hover:text-[var(--color-text)]">Vercel</a>. Set in <span class="font-display text-[var(--color-text)]">Fraunces</span> &amp; <span class="text-[var(--color-text)]">Geist</span>. Logos via <a href="https://svgl.app" class="transition-colors hover:text-[var(--color-text)]">svgl.app</a>.
+        </p>
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <a
+            href="https://github.com/dnocturne/dnoct.me"
+            class="inline-flex items-center gap-1 transition-colors hover:text-[var(--color-text)]"
+          >
+            <span>view source of this site</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          {buildCommitShort && buildCommitUrl && (
+            <>
+              <span class="text-[var(--color-dim)]">·</span>
+              <span>built from</span>
+              <a
+                href={buildCommitUrl}
+                class="tabular transition-colors hover:text-[var(--color-text)]"
+                title={buildCommit ?? undefined}
+              >
+                {buildCommitShort}
+              </a>
+            </>
+          )}
+          <span class="text-[var(--color-dim)]">·</span>
+          <span class="text-[var(--color-dim)]">&copy; {year} Dominykas Jankantas</span>
+        </div>
+      </footer>
     </div>
 
     <SpeedInsights />
