@@ -47,7 +47,7 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://dnoct.me";
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://dnoct.me/").toString();
 const seoTitle = "dnoct.me · Dominykas Jankantas";
 const seoDescription =
-  "Dominykas Jankantas (dnocturne), a CS student in Lithuania. Building nyx (Discord bot), vgrp.lt (GTA V multiplayer), plus Minecraft plugins and Steam Workshop mods.";
+  "Dominykas Jankantas (dnocturne), a software developer in Lithuania. Building nyx (Discord bot), vgrp.lt (GTA V multiplayer), plus Minecraft plugins and Steam Workshop mods.";
 
 // Person + WebSite structured data via @graph so Google can link the two.
 const jsonLd = {
@@ -60,9 +60,14 @@ const jsonLd = {
       alternateName: "dnocturne",
       url: `${siteUrl}/`,
       jobTitle: "Software developer",
-      affiliation: {
+      alumniOf: {
         "@type": "CollegeOrUniversity",
         name: "Klaipėdos valstybinė kolegija",
+      },
+      hasCredential: {
+        "@type": "EducationalOccupationalCredential",
+        credentialCategory: "degree",
+        name: "Professional Bachelor of Computing in Informatics",
       },
       homeLocation: {
         "@type": "Place",
@@ -154,8 +159,9 @@ const jsonLd = {
         </header>
 
         <p class="text-sm leading-relaxed text-[var(--color-muted)]">
-          Third-year <span class="text-[var(--color-text)]">Informatika</span>
-          (Computer Science) student at
+          <span class="text-[var(--color-text)]"
+            >Professional Bachelor of Computing in Informatics</span
+          >, graduated 2026 from
           <span lang="lt" class="text-[var(--color-text)]">Klaipėdos valstybinė kolegija</span>.
         </p>
 
