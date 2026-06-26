@@ -51,7 +51,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
   Erlang: "#B83998",
   OCaml: "#3be133",
   // Game / mod scripting (Linguist may or may not detect these specifically;
-  // GitHub commonly falls back to YAML/Lua for Paradox + RageMP repos).
+  // GitHub commonly falls back to YAML/Lua for Paradox + FiveM repos).
   GDScript: "#355570",
   GLSL: "#5686a5",
   // AMPL = "A Mathematical Programming Language". Shows up on Paradox-mod

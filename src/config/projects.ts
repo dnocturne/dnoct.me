@@ -96,7 +96,7 @@ export const projects: Project[] = [
     type: "wip",
     name: "vgrp.lt",
     url: "https://vgrp.lt",
-    tagline: "A custom RageMP server. More soon.",
+    tagline: "A custom FiveM server. More soon.",
   },
   {
     type: "oss",
